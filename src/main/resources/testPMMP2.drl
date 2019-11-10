@@ -1,0 +1,1158 @@
+
+
+
+
+
+
+// Imported PMML Model Theory
+// Trained with : 
+// Creation timestamp : 
+// Description :  A simple decision tree model for customer categorization. 
+// Copyright : null
+
+
+
+
+package org.kie.pmml.pmml_4_2.REST;
+unit RESTTreeRuleUnit
+
+import org.kie.pmml.pmml_4_2.*;
+import org.kie.pmml.pmml_4_2.model.*;
+import org.kie.pmml.pmml_4_2.model.scorecard.*;
+import org.kie.pmml.pmml_4_2.model.regression.*;
+import org.kie.pmml.pmml_4_2.model.tree.*;
+import org.kie.pmml.pmml_4_2.model.datatypes.*;
+import org.drools.core.factmodel.traits.Traitable;
+import org.kie.api.runtime.rule.FactHandle;
+import org.kie.api.pmml.PMMLRequestData;
+import org.kie.api.pmml.ParameterInfo;
+import org.kie.api.pmml.PMML4Result;
+import org.kie.api.pmml.PMML4Data;
+import org.kie.api.pmml.PMML4DataType;
+
+
+rule 'RuleUnitIndicator'
+when
+then
+   System.out.println("Rules execution available for RESTTreeRuleUnit");
+end
+
+rule 'Extract New Parameter Info'
+@Generated
+salience 10
+no-loop
+when
+   $rd: PMMLRequestData( $cid: correlationId != null, $mn: modelName ) from request
+   $pi: ParameterInfo( $name: name, $value: value ) from $rd.mappedRequestParams.values()
+then
+   PMML4DataFactory factory = PMML4DataFactory.get();
+   PMML4Data data = factory.newPMML4Data($cid, $mn, $pi, false, false);
+   pmmlData.insert(data);
+end
+
+rule "Override Value"
+ 
+
+  @Generated   
+salience 2
+when
+   $new: PMML4Data( $value: value ) from pmmlData
+   $old: PMML4Data( this != $new, name == $new.name, value != $value, this before[0] $new ) from pmmlData
+then
+   retract($old);
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule "Valid_PMML4DataUnrestricted_Values_Result-null"
+ 
+
+  @Generated   
+dialect 'java'
+no-loop
+salience 9999
+when
+   $in : PMML4Data( capitalizedName == "Result", valid == false, placeholder == false  ) from pmmlData
+then
+   modify($in) {
+      setValid( true );
+   }
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule "Valid_PMML4DataUnrestricted_Values_Name-null"
+ 
+
+  @Generated   
+dialect 'java'
+no-loop
+salience 9999
+when
+   $in : PMML4Data( capitalizedName == "Name", valid == false, placeholder == false  ) from pmmlData
+then
+   modify($in) {
+      setValid( true );
+   }
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule "Valid_PMML4DataUnrestricted_Values_Age-null"
+ 
+
+  @Generated   
+dialect 'java'
+no-loop
+salience 9999
+when
+   $in : PMML4Data( capitalizedName == "Age", valid == false, placeholder == false  ) from pmmlData
+then
+   modify($in) {
+      setValid( true );
+   }
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule "Mark_REST"
+salience 10000
+no-loop
+when
+//    not ModelMarker( "REST" ; )
+then
+//    System.out.println( "Marking REST" );
+    ModelMarker mark = new ModelMarker( "REST", "DecisionTree" );
+    insert( mark );
+end
+
+rule "Enable/Disable Model_REST"
+salience 10000
+when
+    $flag : Boolean() from entry-point "enable_REST"
+    $mark : ModelMarker( modelName == "REST", enabled != $flag )
+then
+    delete( $flag );
+    modify ( $mark ) {
+        setEnabled( $flag );
+    }
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule "update_Catg_REST"
+ 
+
+  @Generated   
+salience 2000
+
+when
+   $new: PMML4Data( $cid: correlationId != null, capitalizedName == "Catg", $ctx : context ==  "REST"  ) from pmmlData
+   $old: PMML4Data( this != $new, correlationId == $cid, name == $new.name, context == $ctx, this before[0] $new ) from pmmlData
+then
+    retract( $old );
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule "simpleOutput_Result_to_Catg"
+ 
+
+  @Generated   
+salience -110
+
+when
+ $src : Result( $m : missing, $v : valid == true, $val : value, $ctx : context, $wgt : weight
+                         , context == "REST" 
+                        
+                    )
+ 
+    not Result( missing == false, valid == true, this != $src, weight > $wgt )
+ 
+then
+//  System.out.println("Cloning output " + $src );
+  Catg x = new Catg();
+    x.setValue( $val );
+    x.setMissing( $m );
+    x.setValid( $v );
+    x.setName( "Catg" );
+    x.setContext( $ctx );
+    x.setWeight( $wgt );
+  insertLogical( x );
+end
+
+rule "Update PMML4Result with aliased output Catg"
+ 
+
+  @Generated   
+salience -115
+when
+   $tgt: Catg()
+   $reslt: PMML4Result( resultVariables == null || "Catg" not memberOf resultVariables.keySet() ) from results
+then
+   $reslt.setResultCode("OK");
+   $reslt.addResultVariable("Catg",$tgt);
+   update($reslt);
+end
+
+
+//rule "Clear Output_REST_Catg"
+//salience -110
+//when
+// not  ModelMarker( enabled == true, modelName == "REST" )
+// $x : Catg( context == "REST")
+//then
+//  retract( $x );
+//end
+//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+query "Catg" ( String ctx, java.lang.String $result )
+    Catg( context == ctx , $result := value )
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule "Tree Input Linker REST"
+ 
+
+  @Generated   
+salience 3
+when
+   rqst: PMMLRequestData( modelName == "REST" ) from request
+   $map: java.util.Map() from accumulate( $d: PMML4Data( context == "REST", placeholder == false,
+              valid == true || ( valid == false && missing == true && value != null ) ) from pmmlData,
+                                          init( java.util.Map map = new java.util.HashMap(); ),
+                                          action( map.put($d.getCapitalizedName(),$d); ),
+                                          result( map ) 
+   )
+
+then
+    RESTTreeToken tok = new RESTTreeToken( rqst.getCorrelationId(),"REST",
+                                                       "REST0",
+                                                       null,
+                                                       "NONE",
+                                                       true,
+                                                       new java.util.ArrayList(),
+                                                       new java.util.HashMap(),
+                                                       1.0,
+                                                       0.0,
+                                                       $map);
+    insert(tok);
+end
+
+rule "Update PMML4Result"
+ 
+
+  @Generated   
+salience -2
+when
+   $tgtFld: Result()
+   $reslt: PMML4Result( resultVariables == null || "Result" not memberOf resultVariables.keySet() ) from results
+then
+   FactHandle fh = ((org.drools.core.datasources.InternalDataSource)results).getFactHandleForObject($reslt);
+   $reslt.setResultCode("OK");
+   $reslt.addResultVariable("Result",$tgtFld);
+   results.update(fh,$reslt);
+end
+
+
+rule "Result REST"
+ 
+
+  @Generated   
+salience -2
+when
+    $tok  : RESTTreeToken( context == "REST", current == "null", $out : outcome != null, $conf : confidence )
+then
+//    System.out.println( "EVENTUALLY GENERATE THE SOLUTION ");
+    Result x = new Result();
+            x.setContext( "REST" );
+            x.setValid( true );
+            x.setMissing( false );
+            x.setValue( $out );
+            x.setWeight( ($conf != null) ? $conf:0.0 );
+      insert(x);
+end
+
+
+
+ 
+
+
+
+
+
+
+
+
+rule miningPmml4Data_REST_Name
+ 
+
+  @Generated   
+when
+   $src: PMML4Data( name == "name", $m : missing, $v : valid, $x : value, context == null, placeholder == false ) from pmmlData
+then
+   PMML4Data data = (PMML4Data)PMML4DataFactory.get().copy($src);
+   data.setContext("REST");
+   pmmlData.insert(data);
+end;
+
+
+rule "InitAsMissing_PMML4Data_REST_Name"
+ 
+
+  @Generated   
+salience 1000
+when
+   ModelMarker( modelName == "REST", enabled == true )
+   not PMML4Data( capitalizedName == "Name", context == null ) from pmmlData
+then
+   PMML4DataType data = PMML4DataFactory.get().getPlaceholder("","Name","REST");
+   pmmlData.insert( data );
+end
+
+
+
+rule "RemoveMissing_PMML4Data_REST_Name"
+ 
+
+  @Generated   
+salience 1000
+when
+    $val : PMML4Data( capitalizedName == "Name", context == "REST", missing == false ) from pmmlData
+    $mis : PMML4Data( capitalizedName == "Name", context == "REST", missing == true ) from pmmlData
+then
+    delete( $mis );
+end
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+rule miningPmml4Data_REST_Age
+ 
+
+  @Generated   
+when
+   $src: PMML4Data( name == "age", $m : missing, $v : valid, $x : value, context == null, placeholder == false ) from pmmlData
+then
+   PMML4Data data = (PMML4Data)PMML4DataFactory.get().copy($src);
+   data.setContext("REST");
+   pmmlData.insert(data);
+end;
+
+
+rule "InitAsMissing_PMML4Data_REST_Age"
+ 
+
+  @Generated   
+salience 1000
+when
+   ModelMarker( modelName == "REST", enabled == true )
+   not PMML4Data( capitalizedName == "Age", context == null ) from pmmlData
+then
+   PMML4DataType data = PMML4DataFactory.get().getPlaceholder("","Age","REST");
+   pmmlData.insert( data );
+end
+
+
+
+rule "RemoveMissing_PMML4Data_REST_Age"
+ 
+
+  @Generated   
+salience 1000
+when
+    $val : PMML4Data( capitalizedName == "Age", context == "REST", missing == false ) from pmmlData
+    $mis : PMML4Data( capitalizedName == "Age", context == "REST", missing == true ) from pmmlData
+then
+    delete( $mis );
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule "Eval Tree Node REST - Up"
+ 
+
+  @Generated   
+when
+    $node : RESTTreeNode( context == "REST", $id : id, $master : parent )
+    $tok  : RESTTreeToken( context == "REST", current == $id )
+    not Result( context == "REST" )
+then
+//    System.out.println( "I'm here at " + $id +  ", going back up to " + $master );
+    modify ( $tok ) {
+        setDownward( false ),
+        setCurrent( $master );
+    }
+end
+
+
+
+
+
+
+
+
+
+
+
+
+rule " Create tree REST"
+ 
+
+  @Generated   
+salience 99
+when
+    ModelMarker( "REST" ; enabled == true )
+then
+    RESTTreeNode node;
+    java.util.Map count;
+    java.util.Map confs;
+
+    
+        count = new java.util.HashMap();
+            
+        confs = new java.util.HashMap();
+            
+
+        node = new RESTTreeNode( "","REST",
+                             "REST4",
+                             "REST0",
+                             java.util.Arrays.asList(  ),
+                             "NA",
+                             0,
+                             count,
+                             confs,
+                             "null"
+                             );
+        insert(node);
+    
+        count = new java.util.HashMap();
+            
+        confs = new java.util.HashMap();
+            
+
+        node = new RESTTreeNode( "","REST",
+                             "REST3",
+                             "REST0",
+                             java.util.Arrays.asList(  ),
+                             "BRONZE",
+                             0,
+                             count,
+                             confs,
+                             "null"
+                             );
+        insert(node);
+    
+        count = new java.util.HashMap();
+            
+        confs = new java.util.HashMap();
+            
+
+        node = new RESTTreeNode( "","REST",
+                             "REST2",
+                             "REST0",
+                             java.util.Arrays.asList(  ),
+                             "SILVER",
+                             0,
+                             count,
+                             confs,
+                             "null"
+                             );
+        insert(node);
+    
+        count = new java.util.HashMap();
+            
+        confs = new java.util.HashMap();
+            
+
+        node = new RESTTreeNode( "","REST",
+                             "REST1",
+                             "REST0",
+                             java.util.Arrays.asList(  ),
+                             "GOLD",
+                             0,
+                             count,
+                             confs,
+                             "null"
+                             );
+        insert(node);
+    
+        count = new java.util.HashMap();
+            
+        confs = new java.util.HashMap();
+            
+
+        node = new RESTTreeNode( "","REST",
+                             "REST0",
+                             "null",
+                             java.util.Arrays.asList(  "REST4" , "REST3" , "REST2" , "REST1"  ),
+                             "NO_CHANGE",
+                             0,
+                             count,
+                             confs,
+                             "null"
+                             );
+        insert(node);
+    
+end
+
+
+rule "Ensure Tree Statistics are Filled - REST"
+ 
+
+  @Generated   
+salience 100
+when
+    $node : RESTTreeNode( context == "REST", $id : id, $master : counts, $confs : confidence, counts.size() == 0, $children : children, $numChi : children.size() )
+
+    accumulate( RESTTreeNode( context == $node.context, id memberOf $children, counts.size() > 0, $sub : counts, $x : recordCount )
+                and $k : String() from $sub.keySet(),
+                          $keys : collectSet( $k );
+                          $keys.size() > 0 )
+
+    accumulate( RESTTreeNode( context == $node.context, id memberOf $children, $sub : counts, $x : recordCount > 0 ),
+                          $subs : collectList( $sub ),
+                          $num  : count( $sub ),
+                          $tot  : sum( $x );
+                          $num == $numChi
+                          )
+
+    // FIXME: DROOLS-1248
+    $map : java.util.Map() from accumulate ( $kj : String() from $keys
+                 and accumulate( $m : Map() from $subs, $x : sumBD( $m.get( $kj ) != null ? java.math.BigDecimal.valueOf( (Double) $m.get( $kj ) ) : java.math.BigDecimal.ZERO ) ),
+        init( java.util.Map mapp = new java.util.HashMap(); ),
+        action( mapp.put( $kj, $x.doubleValue() ); ),
+        result( mapp )
+    )
+
+    $mpc : java.util.Map() from accumulate ( $kj : String() from $keys,
+        init( java.util.Map mapc = new java.util.HashMap(); ),
+        action( mapc.put( $kj, ((Double) $map.get( $kj )) / $tot ); ),
+        result( mapc )
+    )
+
+then
+    modify($node) {
+        getCounts().putAll( $map ),
+        getConfidence().putAll( $mpc ),
+        setRecordCount( $tot.intValue() )
+     }
+end
+
+rule "Ensure Tree Scores are Filled - REST"
+ 
+
+  @Generated   
+when
+    $node : RESTTreeNode( context == "REST", $id : id, outcome == null, confidence.size() > 0, $conf : confidence )
+    accumulate( $k : String() from $conf.keySet(),
+                     $maxConf : max( $conf.get( $k ) ) )
+    java.util.Map.Entry( $best : key, value == $maxConf ) from $conf.entrySet()
+
+then
+   modify($node) {
+      setOutcome( (java.lang.String) $best )
+   }
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule "Eval Tree Node REST - REST4 - Down"
+ 
+
+  @Generated   
+salience $children.size() - $children.indexOf( $child )
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST4", $children : children, children.size > 0 )
+    $tok  : RESTTreeToken( context == "REST", current == "REST4", $trail : trail,
+                                 ( ((( mAge == false ) && ( vAge > 18 )) && (( mAge == false ) && ( vAge <= 21 ))) ) || ( visitMode == "AGGREGATE_NODES" && ( ( ( mAge == true  ) ) || ( ( mAge == true  ) ) ) ) )
+    $child : String( this not memberOf $trail ) from $children
+then
+//    System.out.println( "Visiting node REST4, going down to " + $child );
+    modify ( $tok ) {
+        getTrail().add( $child ),
+        setDownward( true ),
+        setCurrent( $child );
+    }
+end
+
+
+rule "Update PMML4Result for True Answer - Node REST:REST4"
+ 
+
+  @Generated   
+salience 3
+no-loop
+when
+   $tok: RESTTreeToken( context == "REST", current == "null", totalCount > 0, confidence != null )
+   $reslt: PMML4Result( resultVariables == null || "RESTTreeToken" not memberOf resultVariables.keySet() ) from results
+then
+   $reslt.setResultCode("OK");
+   $reslt.addResultVariable("RESTTreeToken",$tok);
+   update($reslt);
+end
+
+rule "Eval Tree Node REST - REST4 - True"
+ 
+
+  @Generated   
+salience 3
+no-loop
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST4", $out : outcome,
+                      children.size == 0, $conf : confidence, $tot : recordCount )
+    $tok  : RESTTreeToken( context == "REST", current == "REST4", $baseConf : confidence,
+                                 $res : results, results.keySet not contains "REST4",
+                                 visitMode != "AGGREGATE_NODES",
+                                 ((( mAge == false ) && ( vAge > 18 )) && (( mAge == false ) && ( vAge <= 21 )))
+                               )
+then
+//    System.out.println( "TRUE Solution found at REST4 !!!! " );
+    modify( $tok ) {
+       setConfidence( $baseConf * ( $conf.containsKey( $out ) ? (Double) $conf.get( $out ) : 1.0 ) ),
+       setTotalCount( $tot ),
+       setOutcome( $out ),
+       setCurrent( "null" );
+    }
+end
+
+
+
+
+rule "Eval Tree Node REST - REST4 - Unknown Weighted"
+ 
+
+  @Generated   
+salience 3
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST4", $out : outcome )
+    $tok  : RESTTreeToken( context == "REST", current == "REST4",
+                                 visitMode == "WEIGHTED_CONFIDENCE" || == "LAST_PREDICTION" || == "NULL_PREDICTION",
+                                 results.keySet not contains "REST4",
+                                 ( ( mAge == true  ) ) || ( ( mAge == true  ) ) )
+then
+//    System.out.println( "UNKNOWN found at REST4, collecting for later evaluation !!!! " );
+    modify ( $tok ) { getResults().put( "REST4", $out ); }
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule "Eval Tree Node REST - REST3 - Down"
+ 
+
+  @Generated   
+salience $children.size() - $children.indexOf( $child )
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST3", $children : children, children.size > 0 )
+    $tok  : RESTTreeToken( context == "REST", current == "REST3", $trail : trail,
+                                 ( ((( mAge == false ) && ( vAge > 21 )) && (( mAge == false ) && ( vAge <= 30 ))) ) || ( visitMode == "AGGREGATE_NODES" && ( ( ( mAge == true  ) ) || ( ( mAge == true  ) ) ) ) )
+    $child : String( this not memberOf $trail ) from $children
+then
+//    System.out.println( "Visiting node REST3, going down to " + $child );
+    modify ( $tok ) {
+        getTrail().add( $child ),
+        setDownward( true ),
+        setCurrent( $child );
+    }
+end
+
+
+rule "Update PMML4Result for True Answer - Node REST:REST3"
+ 
+
+  @Generated   
+salience 3
+no-loop
+when
+   $tok: RESTTreeToken( context == "REST", current == "null", totalCount > 0, confidence != null )
+   $reslt: PMML4Result( resultVariables == null || "RESTTreeToken" not memberOf resultVariables.keySet() ) from results
+then
+   $reslt.setResultCode("OK");
+   $reslt.addResultVariable("RESTTreeToken",$tok);
+   update($reslt);
+end
+
+rule "Eval Tree Node REST - REST3 - True"
+ 
+
+  @Generated   
+salience 3
+no-loop
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST3", $out : outcome,
+                      children.size == 0, $conf : confidence, $tot : recordCount )
+    $tok  : RESTTreeToken( context == "REST", current == "REST3", $baseConf : confidence,
+                                 $res : results, results.keySet not contains "REST3",
+                                 visitMode != "AGGREGATE_NODES",
+                                 ((( mAge == false ) && ( vAge > 21 )) && (( mAge == false ) && ( vAge <= 30 )))
+                               )
+then
+//    System.out.println( "TRUE Solution found at REST3 !!!! " );
+    modify( $tok ) {
+       setConfidence( $baseConf * ( $conf.containsKey( $out ) ? (Double) $conf.get( $out ) : 1.0 ) ),
+       setTotalCount( $tot ),
+       setOutcome( $out ),
+       setCurrent( "null" );
+    }
+end
+
+
+
+
+rule "Eval Tree Node REST - REST3 - Unknown Weighted"
+ 
+
+  @Generated   
+salience 3
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST3", $out : outcome )
+    $tok  : RESTTreeToken( context == "REST", current == "REST3",
+                                 visitMode == "WEIGHTED_CONFIDENCE" || == "LAST_PREDICTION" || == "NULL_PREDICTION",
+                                 results.keySet not contains "REST3",
+                                 ( ( mAge == true  ) ) || ( ( mAge == true  ) ) )
+then
+//    System.out.println( "UNKNOWN found at REST3, collecting for later evaluation !!!! " );
+    modify ( $tok ) { getResults().put( "REST3", $out ); }
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule "Eval Tree Node REST - REST2 - Down"
+ 
+
+  @Generated   
+salience $children.size() - $children.indexOf( $child )
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST2", $children : children, children.size > 0 )
+    $tok  : RESTTreeToken( context == "REST", current == "REST2", $trail : trail,
+                                 ( ((( mAge == false ) && ( vAge > 30 )) && (( mAge == false ) && ( vAge <= 40 ))) ) || ( visitMode == "AGGREGATE_NODES" && ( ( ( mAge == true  ) ) || ( ( mAge == true  ) ) ) ) )
+    $child : String( this not memberOf $trail ) from $children
+then
+//    System.out.println( "Visiting node REST2, going down to " + $child );
+    modify ( $tok ) {
+        getTrail().add( $child ),
+        setDownward( true ),
+        setCurrent( $child );
+    }
+end
+
+
+rule "Update PMML4Result for True Answer - Node REST:REST2"
+ 
+
+  @Generated   
+salience 3
+no-loop
+when
+   $tok: RESTTreeToken( context == "REST", current == "null", totalCount > 0, confidence != null )
+   $reslt: PMML4Result( resultVariables == null || "RESTTreeToken" not memberOf resultVariables.keySet() ) from results
+then
+   $reslt.setResultCode("OK");
+   $reslt.addResultVariable("RESTTreeToken",$tok);
+   update($reslt);
+end
+
+rule "Eval Tree Node REST - REST2 - True"
+ 
+
+  @Generated   
+salience 3
+no-loop
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST2", $out : outcome,
+                      children.size == 0, $conf : confidence, $tot : recordCount )
+    $tok  : RESTTreeToken( context == "REST", current == "REST2", $baseConf : confidence,
+                                 $res : results, results.keySet not contains "REST2",
+                                 visitMode != "AGGREGATE_NODES",
+                                 ((( mAge == false ) && ( vAge > 30 )) && (( mAge == false ) && ( vAge <= 40 )))
+                               )
+then
+//    System.out.println( "TRUE Solution found at REST2 !!!! " );
+    modify( $tok ) {
+       setConfidence( $baseConf * ( $conf.containsKey( $out ) ? (Double) $conf.get( $out ) : 1.0 ) ),
+       setTotalCount( $tot ),
+       setOutcome( $out ),
+       setCurrent( "null" );
+    }
+end
+
+
+
+
+rule "Eval Tree Node REST - REST2 - Unknown Weighted"
+ 
+
+  @Generated   
+salience 3
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST2", $out : outcome )
+    $tok  : RESTTreeToken( context == "REST", current == "REST2",
+                                 visitMode == "WEIGHTED_CONFIDENCE" || == "LAST_PREDICTION" || == "NULL_PREDICTION",
+                                 results.keySet not contains "REST2",
+                                 ( ( mAge == true  ) ) || ( ( mAge == true  ) ) )
+then
+//    System.out.println( "UNKNOWN found at REST2, collecting for later evaluation !!!! " );
+    modify ( $tok ) { getResults().put( "REST2", $out ); }
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule "Eval Tree Node REST - REST0 - Down"
+ 
+
+  @Generated   
+salience $children.size() - $children.indexOf( $child )
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST0", $children : children, children.size > 0 )
+    $tok  : RESTTreeToken( context == "REST", current == "REST0", $trail : trail,
+                                 ( (1 == 1) ) || ( visitMode == "AGGREGATE_NODES" && ( false ) ) )
+    $child : String( this not memberOf $trail ) from $children
+then
+//    System.out.println( "Visiting node REST0, going down to " + $child );
+    modify ( $tok ) {
+        getTrail().add( $child ),
+        setDownward( true ),
+        setCurrent( $child );
+    }
+end
+
+
+rule "Update PMML4Result for True Answer - Node REST:REST0"
+ 
+
+  @Generated   
+salience 3
+no-loop
+when
+   $tok: RESTTreeToken( context == "REST", current == "null", totalCount > 0, confidence != null )
+   $reslt: PMML4Result( resultVariables == null || "RESTTreeToken" not memberOf resultVariables.keySet() ) from results
+then
+   $reslt.setResultCode("OK");
+   $reslt.addResultVariable("RESTTreeToken",$tok);
+   update($reslt);
+end
+
+rule "Eval Tree Node REST - REST0 - True"
+ 
+
+  @Generated   
+salience 3
+no-loop
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST0", $out : outcome,
+                      children.size == 0, $conf : confidence, $tot : recordCount )
+    $tok  : RESTTreeToken( context == "REST", current == "REST0", $baseConf : confidence,
+                                 $res : results, results.keySet not contains "REST0",
+                                 visitMode != "AGGREGATE_NODES",
+                                 (1 == 1)
+                               )
+then
+//    System.out.println( "TRUE Solution found at REST0 !!!! " );
+    modify( $tok ) {
+       setConfidence( $baseConf * ( $conf.containsKey( $out ) ? (Double) $conf.get( $out ) : 1.0 ) ),
+       setTotalCount( $tot ),
+       setOutcome( $out ),
+       setCurrent( "null" );
+    }
+end
+
+
+
+
+rule "Eval Tree Node REST - REST0 - Unknown Weighted"
+ 
+
+  @Generated   
+salience 3
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST0", $out : outcome )
+    $tok  : RESTTreeToken( context == "REST", current == "REST0",
+                                 visitMode == "WEIGHTED_CONFIDENCE" || == "LAST_PREDICTION" || == "NULL_PREDICTION",
+                                 results.keySet not contains "REST0",
+                                 false )
+then
+//    System.out.println( "UNKNOWN found at REST0, collecting for later evaluation !!!! " );
+    modify ( $tok ) { getResults().put( "REST0", $out ); }
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rule "Eval Tree Node REST - REST1 - Down"
+ 
+
+  @Generated   
+salience $children.size() - $children.indexOf( $child )
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST1", $children : children, children.size > 0 )
+    $tok  : RESTTreeToken( context == "REST", current == "REST1", $trail : trail,
+                                 ( ( mAge == false ) && ( vAge > 40 ) ) || ( visitMode == "AGGREGATE_NODES" && ( ( mAge == true  ) ) ) )
+    $child : String( this not memberOf $trail ) from $children
+then
+//    System.out.println( "Visiting node REST1, going down to " + $child );
+    modify ( $tok ) {
+        getTrail().add( $child ),
+        setDownward( true ),
+        setCurrent( $child );
+    }
+end
+
+
+rule "Update PMML4Result for True Answer - Node REST:REST1"
+ 
+
+  @Generated   
+salience 3
+no-loop
+when
+   $tok: RESTTreeToken( context == "REST", current == "null", totalCount > 0, confidence != null )
+   $reslt: PMML4Result( resultVariables == null || "RESTTreeToken" not memberOf resultVariables.keySet() ) from results
+then
+   $reslt.setResultCode("OK");
+   $reslt.addResultVariable("RESTTreeToken",$tok);
+   update($reslt);
+end
+
+rule "Eval Tree Node REST - REST1 - True"
+ 
+
+  @Generated   
+salience 3
+no-loop
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST1", $out : outcome,
+                      children.size == 0, $conf : confidence, $tot : recordCount )
+    $tok  : RESTTreeToken( context == "REST", current == "REST1", $baseConf : confidence,
+                                 $res : results, results.keySet not contains "REST1",
+                                 visitMode != "AGGREGATE_NODES",
+                                 ( mAge == false ) && ( vAge > 40 )
+                               )
+then
+//    System.out.println( "TRUE Solution found at REST1 !!!! " );
+    modify( $tok ) {
+       setConfidence( $baseConf * ( $conf.containsKey( $out ) ? (Double) $conf.get( $out ) : 1.0 ) ),
+       setTotalCount( $tot ),
+       setOutcome( $out ),
+       setCurrent( "null" );
+    }
+end
+
+
+
+
+rule "Eval Tree Node REST - REST1 - Unknown Weighted"
+ 
+
+  @Generated   
+salience 3
+when
+    $node : RESTTreeNode( context == "REST", $id : id == "REST1", $out : outcome )
+    $tok  : RESTTreeToken( context == "REST", current == "REST1",
+                                 visitMode == "WEIGHTED_CONFIDENCE" || == "LAST_PREDICTION" || == "NULL_PREDICTION",
+                                 results.keySet not contains "REST1",
+                                 ( mAge == true  ) )
+then
+//    System.out.println( "UNKNOWN found at REST1, collecting for later evaluation !!!! " );
+    modify ( $tok ) { getResults().put( "REST1", $out ); }
+end
+
+
